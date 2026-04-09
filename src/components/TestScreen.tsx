@@ -34,9 +34,13 @@ export const TestScreen: React.FC = () => {
   const hasAnsweredCurrent = answers[currentQ?.id] !== undefined;
 
   const handleOptionClick = (questionId: string, value: number) => {
+    // Determine if this is currently the last question BEFORE setting the answer
+    // because setting the answer might change the total number of questions.
+    const currentlyLast = isLastQuestion;
+    
     setAnswer(questionId, value);
     // 稍微延迟一下，给用户看清选中状态的时间，然后自动滑到下一题
-    if (!isLastQuestion) {
+    if (!currentlyLast) {
       setTimeout(() => {
         nextQuestion();
       }, 350);

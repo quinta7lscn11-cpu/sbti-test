@@ -44,7 +44,21 @@ export const useTestStore = create<TestState>((set, get) => ({
     if (questionId === 'drink_gate_q1' && value !== 3) {
       delete newAnswers['drink_gate_q2'];
     }
-    return { answers: newAnswers };
+    
+    // Check if the drink gate question changes the total number of questions.
+    // If it decreases the total questions and we are on the new "last" question or beyond,
+    // we need to adjust the currentQuestionIndex to avoid pointing to an undefined question.
+    let newIndex = state.currentQuestionIndex;
+    const visible = [...state.shuffledQuestions];
+    const gateIndex = visible.findIndex(q => q.id === 'drink_gate_q1');
+    if (gateIndex !== -1 && newAnswers['drink_gate_q1'] === 3) {
+      visible.splice(gateIndex + 1, 0, specialQuestions[1]);
+    }
+    if (newIndex >= visible.length) {
+      newIndex = visible.length - 1;
+    }
+
+    return { answers: newAnswers, currentQuestionIndex: newIndex };
   }),
 
   nextQuestion: () => set((state) => {
